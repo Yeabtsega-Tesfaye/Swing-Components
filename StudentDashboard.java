@@ -35,6 +35,7 @@ public class StudentDashboard {
         newSubMenu.add(webProject);
 
         fileMenu.add(newSubMenu);
+        fileMenu.addSeparator();
         fileMenu.add(openItem);
         fileMenu.addSeparator();
         fileMenu.add(exitItem);

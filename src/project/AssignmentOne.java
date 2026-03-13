@@ -14,7 +14,7 @@ public class AssignmentOne extends JFrame {
     private JCheckBox amharicCheck, englishCheck, germanCheck;
     private JComboBox<String> deptCombo;
     private JComboBox<String> yearCombo;
-    private   JTextArea hobbiesArea;
+    private JTextArea hobbiesArea;
     private JDateChooser dateChooser;
     private SpinnerListModel favFoodModel;
     private JSpinner favFoodSpinner;

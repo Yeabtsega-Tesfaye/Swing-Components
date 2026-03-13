@@ -48,8 +48,12 @@ public class OrdinaryComponentsShowcase extends JFrame {
         label.setFont(new Font("Arial", Font.BOLD, 16));
 
         // JTextField
-        textField = new JTextField();
+        textField = new JTextField(); // I could add a column size directly pass or setColuns() but to limit use
+                                      // field.setDocument(new JTextFieldLimit(10));
         textField.setToolTipText("Type something here");
+        // setEditable
+        // select(0,5) selectAll()
+        // isEmpty()
 
         // JButton
         button = new JButton("Click Me");
@@ -58,7 +62,24 @@ public class OrdinaryComponentsShowcase extends JFrame {
         // JTextArea with Scroll
         textArea = new JTextArea(4, 20);
         textArea.setLineWrap(true);
-        JScrollPane textScroll = new JScrollPane(textArea);
+        JScrollPane textScroll = new JScrollPane(textArea); // Then add scroll pane to frame.
+        // Scrollbar Policies
+
+        // You can control scrollbar behavior.
+
+        // Example:
+
+        // JScrollPane scroll = new JScrollPane(area,
+        // JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+        // JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
+        // );
+
+        // Options:
+
+        // Policy Meaning
+        // ALWAYS Always visible
+        // NEVER Never visible
+        // AS_NEEDED Appears when needed
 
         // Event: Button Click
         button.addActionListener(e -> {
@@ -88,16 +109,20 @@ public class OrdinaryComponentsShowcase extends JFrame {
 
         // JCheckBox
         checkBox = new JCheckBox("Enable Feature");
+        // isSelected and setSelected + addItemListner
 
         // JRadioButtons + ButtonGroup
         radio1 = new JRadioButton("Option A");
-        radio2 = new JRadioButton("Option B");
+        radio2 = new JRadioButton("Option B"); // can use only actionListner
         ButtonGroup group = new ButtonGroup();
         group.add(radio1);
         group.add(radio2);
+        // Layout matters: Radio buttons usually look cleaner in vertical BoxLayout.
+
+        // panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
         // JComboBox (Dropdown)
-        String[] items = {"Java", "Python", "C++", "JavaScript"};
+        String[] items = { "Java", "Python", "C++", "JavaScript" };
         comboBox = new JComboBox<>(items);
 
         // JSlider
@@ -138,7 +163,7 @@ public class OrdinaryComponentsShowcase extends JFrame {
         JPanel panel = new JPanel(new BorderLayout());
 
         // JList
-        String[] data = {"Apple", "Banana", "Orange", "Mango", "Grapes"};
+        String[] data = { "Apple", "Banana", "Orange", "Mango", "Grapes" };
         list = new JList<>(data);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -151,11 +176,11 @@ public class OrdinaryComponentsShowcase extends JFrame {
         });
 
         // JTable
-        String[] columns = {"ID", "Name", "Score"};
+        String[] columns = { "ID", "Name", "Score" };
         Object[][] rows = {
-                {1, "Alice", 90},
-                {2, "Bob", 85},
-                {3, "Charlie", 95}
+                { 1, "Alice", 90 },
+                { 2, "Bob", 85 },
+                { 3, "Charlie", 95 }
         };
         table = new JTable(rows, columns);
         JScrollPane tableScroll = new JScrollPane(table);

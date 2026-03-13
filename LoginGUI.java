@@ -53,7 +53,7 @@ public class LoginGUI {
             if (username.equals("admin") && password.equals("1234")) {
                 JOptionPane.showMessageDialog(frame, "Login Successful!");
             } else {
-                JOptionPane.showMessageDialog(frame, "Invalid Username or Password");
+                JOptionPane.showMessageDialog(frame, "Invalid Username or Password" , "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
