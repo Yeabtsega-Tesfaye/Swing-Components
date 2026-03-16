@@ -14,8 +14,8 @@ public class Calculator extends JFrame implements ActionListener {
 
     public Calculator() {
 
-        setTitle("iPhone Style Calculator");
-        setSize(350, 550);
+        setTitle("Calculator");
+        setSize(400, 650);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
