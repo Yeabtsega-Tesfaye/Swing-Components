@@ -2,37 +2,61 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class Calculator extends JFrame implements ActionListener {
-
-    private JTextField display;
-    private JLabel expressionLabel;
+/**
+ * A scientific calculator with hybrid event handling approach:
+ * - Lambda expressions for simple, independent actions
+ * - Inner classes for complex, shared logic
+ * - Method references for reusable operations
+ */
+public class Calculator extends JFrame {
     
-    private double firstNumber = 0;
-    private String operator = "";
-    private boolean startNewNumber = true;
-    private String currentExpression = "";
+    // ============= INSTANCE VARIABLES =============
+    // These maintain the calculator's state between operations
+    
+    private JTextField display;           // Shows current number/result
+    private JLabel expressionLabel;        // Shows the full expression (e.g., "5 + 3 =")
+    
+    private double firstNumber = 0;        // First operand for binary operations
+    private String operator = "";           // Current operator (+, -, *, /, ^)
+    private boolean startNewNumber = true;  // Flag to start new number after operator
+    private String currentExpression = "";  // Stores the expression being built
 
+    // ============= CONSTRUCTOR =============
+    // Sets up the UI and event handlers
     public Calculator() {
-
+        // Basic window setup
         setTitle("Calculator");
         setSize(400, 650);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // DISPLAY PANEL (shows expression and current input)
+        // Initialize all UI components
+        initializeDisplay();
+        initializeButtonPanel();
+        
+        // Make window visible
+        setVisible(true);
+    }
+
+    // ============= UI INITIALIZATION METHODS =============
+    
+    /**
+     * Creates the top display panel showing expression and current number
+     */
+    private void initializeDisplay() {
         JPanel displayPanel = new JPanel(new BorderLayout());
         displayPanel.setBackground(Color.BLACK);
         displayPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
         
-        // Expression label (shows the full expression)
+        // Expression label (smaller text above main display)
         expressionLabel = new JLabel(" ");
         expressionLabel.setFont(new Font("Arial", Font.PLAIN, 18));
         expressionLabel.setHorizontalAlignment(JLabel.RIGHT);
         expressionLabel.setForeground(new Color(150, 150, 150));
         displayPanel.add(expressionLabel, BorderLayout.NORTH);
         
-        // Main display
+        // Main display (large text for current number)
         display = new JTextField("0");
         display.setFont(new Font("Arial", Font.BOLD, 48));
         display.setHorizontalAlignment(JTextField.RIGHT);
@@ -43,8 +67,12 @@ public class Calculator extends JFrame implements ActionListener {
         displayPanel.add(display, BorderLayout.CENTER);
         
         add(displayPanel, BorderLayout.NORTH);
+    }
 
-        // BUTTON PANEL
+    /**
+     * Creates all calculator buttons with their respective event handlers
+     */
+    private void initializeButtonPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         panel.setBackground(Color.BLACK);
@@ -55,7 +83,7 @@ public class Calculator extends JFrame implements ActionListener {
         gbc.weighty = 1;
         gbc.insets = new Insets(5, 5, 5, 5);
 
-        // Button definitions with their grid positions (now with more functions)
+        // Button layout: rows and columns
         String[][] buttons = {
                 {"C", "⌫", "√", "^"},
                 {"7", "8", "9", "/"},
@@ -64,37 +92,16 @@ public class Calculator extends JFrame implements ActionListener {
                 {"0", ".", "=", "+"}
         };
 
+        // Create each button and assign appropriate handler
         for (int row = 0; row < buttons.length; row++) {
             for (int col = 0; col < buttons[row].length; col++) {
                 String text = buttons[row][col];
                 
-                JButton btn = new JButton(text);
-                btn.setFont(new Font("Arial", Font.BOLD, text.length() > 1 ? 16 : 20));
-                btn.setFocusPainted(false);
-
-                // Colors (iPhone style with function buttons)
-                if (text.matches("[0-9.]")) {
-                    btn.setBackground(new Color(60, 60, 60));
-                    btn.setForeground(Color.WHITE);
-                } else if (text.equals("=")) {
-                    btn.setBackground(new Color(255, 149, 0));
-                    btn.setForeground(Color.WHITE);
-                } else if (text.equals("C") || text.equals("⌫")) {
-                    btn.setBackground(new Color(165, 165, 165));
-                } else if (text.equals("√") || text.equals("^")) {
-                    btn.setBackground(new Color(120, 120, 120));
-                    btn.setForeground(Color.WHITE);
-                } else {
-                    btn.setBackground(new Color(255, 149, 0));
-                    btn.setForeground(Color.WHITE);
-                }
-
-                btn.addActionListener(this);
+                JButton btn = createStyledButton(text);
+                assignButtonHandler(btn, text);  // Different handlers based on button type
 
                 gbc.gridx = col;
                 gbc.gridy = row;
-                gbc.gridwidth = 1;
-
                 panel.add(btn, gbc);
             }
         }
@@ -102,35 +109,180 @@ public class Calculator extends JFrame implements ActionListener {
         add(panel, BorderLayout.CENTER);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
+    /**
+     * Creates a button with appropriate styling based on its function
+     */
+    private JButton createStyledButton(String text) {
+        JButton btn = new JButton(text);
+        btn.setFont(new Font("Arial", Font.BOLD, text.length() > 1 ? 16 : 20));
+        btn.setFocusPainted(false);
 
-        String cmd = e.getActionCommand();
+        // Color coding based on button type (iPhone style)
+        if (text.matches("[0-9.]")) {
+            btn.setBackground(new Color(60, 60, 60));
+            btn.setForeground(Color.WHITE);
+        } else if (text.equals("=")) {
+            btn.setBackground(new Color(255, 149, 0));
+            btn.setForeground(Color.WHITE);
+        } else if (text.equals("C") || text.equals("⌫")) {
+            btn.setBackground(new Color(165, 165, 165));
+        } else if (text.equals("√") || text.equals("^")) {
+            btn.setBackground(new Color(120, 120, 120));
+            btn.setForeground(Color.WHITE);
+        } else {
+            btn.setBackground(new Color(255, 149, 0));
+            btn.setForeground(Color.WHITE);
+        }
 
-        // NUMBER
-        if (cmd.matches("[0-9]")) {
+        return btn;
+    }
+
+    // ============= EVENT HANDLER ASSIGNMENT =============
+    // This is where the HYBRID approach is implemented
+    // Different types of buttons get different types of handlers
+
+    /**
+     * Assigns the appropriate event handler based on button type
+     * Demonstrates the hybrid approach:
+     * - Lambda for simple actions (clear, backspace)
+     * - Inner class for complex shared logic (numbers, operators)
+     * - Method reference for reusable operations
+     */
+    private void assignButtonHandler(JButton btn, String text) {
+        
+        // ===== CASE 1: LAMBDA EXPRESSIONS =====
+        // Used for simple, independent actions that don't need complex shared state
+        
+        if (text.equals("C")) {
+            // Clear button - simple reset operation
+            btn.addActionListener(e -> {
+                display.setText("0");
+                firstNumber = 0;
+                operator = "";
+                startNewNumber = true;
+                currentExpression = "";
+                expressionLabel.setText(" ");
+            });
+        }
+        else if (text.equals("⌫")) {
+            // Backspace button - simple text manipulation
+            btn.addActionListener(e -> {
+                String currentText = display.getText();
+                if (currentText.equals("Error")) {
+                    display.setText("0");
+                } else if (currentText.length() > 1) {
+                    if (currentText.length() == 2 && currentText.startsWith("-")) {
+                        display.setText("0");
+                    } else {
+                        display.setText(currentText.substring(0, currentText.length() - 1));
+                    }
+                } else {
+                    display.setText("0");
+                }
+                updateExpression();
+            });
+        }
+        
+        // ===== CASE 2: INNER CLASS INSTANCE =====
+        // Used for buttons that share complex logic (numbers, operators)
+        // This avoids code duplication and centralizes the logic
+        
+        else if (text.matches("[0-9]")) {
+            // Number buttons use a dedicated inner class
+            btn.addActionListener(new NumberButtonHandler(text));
+        }
+        else if (text.equals(".")) {
+            // Decimal button uses another inner class
+            btn.addActionListener(new DecimalButtonHandler());
+        }
+        else if (text.matches("[+\\-*/]")) {
+            // Basic operators use the OperatorHandler inner class
+            btn.addActionListener(new OperatorButtonHandler(text));
+        }
+        else if (text.equals("^")) {
+            // Exponent operator
+            btn.addActionListener(new OperatorButtonHandler("^"));
+        }
+        
+        // ===== CASE 3: SINGLE-USE INNER CLASSES =====
+        // For buttons with unique but complex logic
+        
+        else if (text.equals("√")) {
+            // Square root has unique error checking (can't sqrt negative)
+            btn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    double number = Double.parseDouble(display.getText());
+                    if (number < 0) {
+                        display.setText("Error");
+                        startNewNumber = true;
+                        return;
+                    }
+                    double result = Math.sqrt(number);
+                    currentExpression = "√(" + number + ")";
+                    display.setText(formatResult(result));
+                    startNewNumber = true;
+                    operator = "";
+                    expressionLabel.setText(currentExpression + " =");
+                }
+            });
+        }
+        else if (text.equals("=")) {
+            // Equals button needs to perform calculation and update state
+            btn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    calculate();
+                    operator = "";
+                    startNewNumber = true;
+                }
+            });
+        }
+    }
+
+    // ============= INNER CLASSES FOR EVENT HANDLING =============
+    // These encapsulate related button logic
+    
+    /**
+     * Handles all number buttons (0-9)
+     * Inner class allows reuse of the same logic for all 10 digits
+     */
+    private class NumberButtonHandler implements ActionListener {
+        private final String digit;
+        
+        public NumberButtonHandler(String digit) {
+            this.digit = digit;
+        }
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
             if (startNewNumber) {
-                display.setText(cmd);
+                display.setText(digit);
                 startNewNumber = false;
-                // Clear expression when starting new number after operator
                 if (!operator.isEmpty()) {
                     currentExpression = firstNumber + " " + operator + " ";
                 }
             } else {
                 // Prevent multiple leading zeros
-                if (display.getText().equals("0") && cmd.equals("0")) {
+                if (display.getText().equals("0") && digit.equals("0")) {
                     // Do nothing - keep single zero
-                } else if (display.getText().equals("0") && !cmd.equals("0")) {
-                    display.setText(cmd);
+                } else if (display.getText().equals("0") && !digit.equals("0")) {
+                    display.setText(digit);
                 } else {
-                    display.setText(display.getText() + cmd);
+                    display.setText(display.getText() + digit);
                 }
             }
             updateExpression();
         }
-
-        // DECIMAL
-        else if (cmd.equals(".")) {
+    }
+    
+    /**
+     * Handles decimal point button
+     * Separate class because decimal has unique rules (can't have two decimals)
+     */
+    private class DecimalButtonHandler implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
             if (startNewNumber) {
                 display.setText("0.");
                 startNewNumber = false;
@@ -142,85 +294,38 @@ public class Calculator extends JFrame implements ActionListener {
             }
             updateExpression();
         }
-
-        // OPERATOR (+, -, *, /)
-        else if (cmd.matches("[+\\-*/]")) {
+    }
+    
+    /**
+     * Handles all operator buttons (+, -, *, /, ^)
+     * Centralizes the operator logic to avoid repetition
+     */
+    private class OperatorButtonHandler implements ActionListener {
+        private final String op;
+        
+        public OperatorButtonHandler(String op) {
+            this.op = op;
+        }
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
             if (!operator.isEmpty() && !startNewNumber) {
-                // If there's a pending operation, calculate it first
-                calculate();
+                calculate();  // Chain operations: 5 + 3 - 2 etc.
             }
             firstNumber = Double.parseDouble(display.getText());
-            operator = cmd;
+            operator = op;
             startNewNumber = true;
             currentExpression = firstNumber + " " + operator + " ";
             expressionLabel.setText(currentExpression);
         }
-
-        // SQUARE ROOT
-        else if (cmd.equals("√")) {
-            double number = Double.parseDouble(display.getText());
-            if (number < 0) {
-                display.setText("Error");
-                startNewNumber = true;
-                return;
-            }
-            double result = Math.sqrt(number);
-            currentExpression = "√(" + number + ")";
-            display.setText(formatResult(result));
-            startNewNumber = true;
-            operator = "";
-            expressionLabel.setText(currentExpression + " =");
-        }
-
-        // EXPONENTIAL (x^y)
-        else if (cmd.equals("^")) {
-            if (!operator.isEmpty() && !startNewNumber) {
-                calculate();
-            }
-            firstNumber = Double.parseDouble(display.getText());
-            operator = "^";
-            startNewNumber = true;
-            currentExpression = firstNumber + " ^ ";
-            expressionLabel.setText(currentExpression);
-        }
-
-        // EQUALS
-        else if (cmd.equals("=")) {
-            calculate();
-            operator = "";
-            startNewNumber = true;
-        }
-
-        // CLEAR
-        else if (cmd.equals("C")) {
-            display.setText("0");
-            firstNumber = 0;
-            operator = "";
-            startNewNumber = true;
-            currentExpression = "";
-            expressionLabel.setText(" ");
-        }
-
-        // BACKSPACE
-        else if (cmd.equals("⌫")) {
-            String text = display.getText();
-            
-            if (text.equals("Error")) {
-                display.setText("0");
-            } else if (text.length() > 1) {
-                // Don't delete the minus sign if it's the only character
-                if (text.length() == 2 && text.startsWith("-")) {
-                    display.setText("0");
-                } else {
-                    display.setText(text.substring(0, text.length() - 1));
-                }
-            } else {
-                display.setText("0");
-            }
-            updateExpression();
-        }
     }
 
+    // ============= CALCULATION LOGIC METHODS =============
+    
+    /**
+     * Performs the actual calculation based on current operator
+     * Called by operator handlers and equals button
+     */
     private void calculate() {
         if (operator.isEmpty()) return;
 
@@ -239,7 +344,7 @@ public class Calculator extends JFrame implements ActionListener {
                 break;
             case "*":
                 result = firstNumber * secondNumber;
-                calculationString = firstNumber + " × " + secondNumber;
+                calculationString = firstNumber + " * " + secondNumber;
                 break;
             case "/":
                 if (secondNumber == 0) {
@@ -263,22 +368,26 @@ public class Calculator extends JFrame implements ActionListener {
         firstNumber = result;
     }
 
+    /**
+     * Formats the result to avoid unnecessary decimal places
+     * e.g., 5.0 becomes "5", 3.33333 becomes "3.33333333"
+     */
     private String formatResult(double result) {
-        // Handle decimal formatting
         if (Double.isInfinite(result) || Double.isNaN(result)) {
             return "Error";
         }
         if (result == (long) result) {
             return String.valueOf((long) result);
         } else {
-            // Limit to 8 decimal places to avoid long decimals
             String formatted = String.format("%.8f", result);
-            // Remove trailing zeros
             formatted = formatted.replaceAll("0*$", "").replaceAll("\\.$", "");
             return formatted;
         }
     }
 
+    /**
+     * Updates the expression label to show the current calculation
+     */
     private void updateExpression() {
         if (!operator.isEmpty()) {
             expressionLabel.setText(currentExpression + display.getText());
@@ -287,15 +396,16 @@ public class Calculator extends JFrame implements ActionListener {
         }
     }
 
+    // ============= MAIN METHOD =============
     public static void main(String[] args) {
+        // Use system look and feel for native appearance
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
         }
         
-        SwingUtilities.invokeLater(() ->
-                new Calculator().setVisible(true)
-        );
+        // Create calculator on Event Dispatch Thread (EDT) for thread safety
+        SwingUtilities.invokeLater(() -> new Calculator());
     }
 }

@@ -137,7 +137,7 @@ public class YimensCalc {
                                 clearAll();
                             }
                         }
-                        else if("+-*/".contains(buttonValue)){
+                        else if("-*/".contains(buttonValue)){
                             if(operator == null){
                                 A = resultLabel.getText();
                                 operator = buttonValue;
@@ -223,10 +223,10 @@ public class YimensCalc {
                     }
                 }
             });
+            
         }
         frame.setVisible(true);
     }
-
     void clearAll() {
         A = "0";
         operator = null;
