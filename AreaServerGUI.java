@@ -12,7 +12,7 @@ import javax.swing.JTextArea;
 
 public class AreaServerGUI extends JFrame {
 
-    private JTextArea jta = new JTextArea();
+    JTextArea jta = new JTextArea();
 
     public static void main(String[] args) {
         new AreaServerGUI();
@@ -31,9 +31,32 @@ public class AreaServerGUI extends JFrame {
             ServerSocket serverSocket = new ServerSocket(8000);
             jta.append("Server started at " + new Date() + "\n");
 
+            while (true) {
             Socket socket = serverSocket.accept();
             jta.append("Client connected\n");
 
+            AreaClientHandler handler = new AreaClientHandler(socket,jta);
+            handler.start();
+            }
+        } catch(IOException e) {
+            jta.append("Error :" + e.getMessage());
+        }
+
+
+    }
+}
+
+class AreaClientHandler extends Thread {
+    Socket socket;
+    JTextArea jta;
+
+    public AreaClientHandler(Socket socket,JTextArea jta) {
+        this.socket = socket;
+        this.jta = jta;
+    }
+
+    public void run(){
+        try {
             DataInputStream inputFromClient =
                 new DataInputStream(socket.getInputStream());
 
@@ -55,4 +78,5 @@ public class AreaServerGUI extends JFrame {
             jta.append("Error: " + ex.getMessage());
         }
     }
+
 }

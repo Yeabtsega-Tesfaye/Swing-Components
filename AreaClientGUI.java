@@ -1,7 +1,6 @@
 import java.io.*;
 import java.net.*;
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 
 public class AreaClientGUI extends JFrame {
@@ -28,7 +27,22 @@ public class AreaClientGUI extends JFrame {
         add(p, BorderLayout.NORTH);
         add(new JScrollPane(jta), BorderLayout.CENTER);
 
-        jtf.addActionListener(new TextFieldListener());
+        jtf.addActionListener( e -> {
+            try {
+                double radius = Double.parseDouble(jtf.getText().trim());
+
+                toServer.writeDouble(radius);
+                toServer.flush();
+
+                double area = fromServer.readDouble();
+
+                jta.append("Radius: " + radius + "\n");
+                jta.append("Area from server: " + area + "\n");
+
+            } catch (IOException ex) {
+                jta.append("Error: " + ex.getMessage() + "\n");
+            }
+        });
 
         setTitle("Area Client");
         setSize(500, 300);
@@ -46,23 +60,4 @@ public class AreaClientGUI extends JFrame {
         }
     }
 
-    private class TextFieldListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-                double radius = Double.parseDouble(jtf.getText().trim());
-
-                toServer.writeDouble(radius);
-                toServer.flush();
-
-                double area = fromServer.readDouble();
-
-                jta.append("Radius: " + radius + "\n");
-                jta.append("Area from server: " + area + "\n");
-
-            } catch (IOException ex) {
-                jta.append("Error: " + ex.getMessage() + "\n");
-            }
-        }
-    }
 }
